@@ -1,6 +1,6 @@
 # SDL Graphics Library
 
-This library aims to provide additional functionality for the (SDL library)[https://libsdl.org].
+This library aims to provide additional functionality for the [SDL library](https://libsdl.org).
 
 ## About
 
