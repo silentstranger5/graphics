@@ -14,8 +14,6 @@ void clockf();
 SDL_Window* window;
 SDL_Renderer* renderer;
 
-#define PI 3.1415927f
-
 int main(int argc, char **argv) {
 	if (argc != 2) {
 		printf("usage: %s model\n\t"

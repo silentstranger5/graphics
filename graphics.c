@@ -1,9 +1,5 @@
 #include "graphics.h"
 
-int cmp(const void *x, const void *y) {
-	return (int) (*(float *) x - *(float *) y);
-}
-
 // render ellipse
 // r - renderer
 // m - drawing mode [LINE, FILL]
@@ -43,50 +39,55 @@ void circle(render_t *re, int m, float x, float y, float r) {
 // m - drawing mode [LINE, FILL]
 // v - point list
 // n - number of points
-void polygon(render_t *r, int m, float *v, int n) {
-	switch (m) {
-	case LINE:
-		for (int i = 0; i < n; i++) {
-			line(r, v[2 * i + 0], v[2 * i + 1], v[2 * ((i + 1) % n) + 0], v[2 * ((i + 1) % n) + 1]);
-		}
-		break;
-	case FILL:
-		SDL_Vertex *vertices = calloc(3 * n, sizeof(SDL_Vertex));
-		for (int i = 0; i < n - 2; i++) {
-			SDL_FPoint p[3] = {0};
-			SDL_FColor col = {0};
-			memcpy(&p[0], v + 0 * (i + 1), 2 * sizeof(float));
-			memcpy(&p[1], v + 2 * (i + 1), 4 * sizeof(float));
-			SDL_GetRenderDrawColorFloat(r, &col.r, &col.g, &col.b, &col.a);
-			for (int j = 0; j < 3; j++)
-				vertices[3 * i + j] = (SDL_Vertex) {p[j], col};
-		}
-		SDL_RenderGeometry(r, NULL, vertices, 3 * (n - 2), NULL, 0);
-		break;
-	}
+// void polygon(render_t *r, int m, float *v, int n) {
+// 	switch (m) {
+// 	case LINE:
+// 		for (int i = 0; i < n; i++) {
+// 			line(r, v[2 * i + 0], v[2 * i + 1], 
+//				v[2 * ((i + 1) % n) + 0], v[2 * ((i + 1) % n) + 1]);
+// 		}
+// 		break;
+// 	case FILL:
+// 		SDL_Vertex *vertices = calloc(3 * n, sizeof(SDL_Vertex));
+// 		for (int i = 0; i < n - 2; i++) {
+// 			SDL_FPoint p[3] = {0};
+// 			SDL_FColor col = {0};
+// 			memcpy(&p[0], v + 0 * (i + 1), 2 * sizeof(float));
+// 			memcpy(&p[1], v + 2 * (i + 1), 4 * sizeof(float));
+// 			SDL_GetRenderDrawColorFloat(r, &col.r, &col.g, &col.b, &col.a);
+// 			for (int j = 0; j < 3; j++)
+// 				vertices[3 * i + j] = (SDL_Vertex) {p[j], col};
+// 		}
+// 		SDL_RenderGeometry(r, NULL, vertices, 3 * (n - 2), NULL, 0);
+// 		break;
+// 	}
+// }
+
+int cmp(const void *x, const void *y) {
+	return (int) (*(float *) x - *(float *) y);
 }
 
-/*
 // render polygon (scanline)
 // r - renderer
 // m - drawing mode [LINE, FILL]
 // v - point list
 // n - number of points
-void polygon(render_t *r, int m, vec2 *v, int n) {
+void polygon(render_t *r, int m, float *v, int n) {
 	if (m == LINE) {
 		for (int i = 0; i < n; i++) {
-			line(r, v[i][0], v[i][1], v[(i+1)%n][0], v[(i+1)%n][1]);
+			line(r, v[2 * i + 0], v[2 * i + 1], 
+				v[2 * ((i+1) % n) + 0], v[2 * ((i+1) % n) + 1]);
 		}
 		return;
 	}
-	typedef struct { float k, x0, x1, y0, y1, ymin, ymax; } edge;
-	float ymin = v[0][1], ymax = v[0][1];
+	typedef struct { float k, x0, y0, ymin, ymax; } edge;
 	edge *e = malloc(n * sizeof(edge));
+	float ymin = v[0], ymax = v[1];
 	for (int i = 0; i < n; i++) {
-		float x0 = v[i][0];
-		float y0 = v[i][1];
-		float x1 = v[(i + 1)%n][0];
-		float y1 = v[(i + 1)%n][1];
+		float x0 = v[2 * i + 0];
+		float y0 = v[2 * i + 1];
+		float x1 = v[2 * (i+1)%n + 0];
+		float y1 = v[2 * (i+1)%n + 1];
 		float eymin = (y0 < y1) ? y0 : y1;
 		float eymax = (y0 > y1) ? y0 : y1;
 		if (x0 > x1) {
@@ -94,15 +95,13 @@ void polygon(render_t *r, int m, vec2 *v, int n) {
 			swap(float, y0, y1);
 		}
 		float k = (y1 - y0) / (x1 - x0);
-		e[i] = (edge) { k, x0, x1, y0, y1, eymin, eymax };
-		if (y0 < ymin) ymin = y0;
-		if (y1 < ymin) ymin = y1;
-		if (y0 > ymax) ymax = y0;
-		if (y1 > ymax) ymax = y1;
+		e[i] = (edge) { k, x0, y0, eymin, eymax };
+		if (eymin < ymin) ymin = eymin;
+		if (eymax > ymax) ymax = eymax;
 	}
+	float *xi = malloc(n * sizeof(float));	
 	for (float y = ymin; y < ymax; y++) {
 		int xn = 0;
-		float *xi = malloc(n * sizeof(float));	
 		for (int i = 0; i < n; i++) {
 			if (e[i].k && y > e[i].ymin && y <= e[i].ymax) {
 				xi[xn++] = e[i].x0 + (y - e[i].y0) / e[i].k;
@@ -112,11 +111,10 @@ void polygon(render_t *r, int m, vec2 *v, int n) {
 		for (int i = 0; i < xn; i += 2) {
 			line(r, xi[i], y, xi[i + 1], y);
 		}
-		free(xi);
 	}
+	free(xi);
 	free(e);
 }
-*/
 
 // render wireframe mesh
 // r - renderer

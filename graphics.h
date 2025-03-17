@@ -13,6 +13,9 @@
 #define color     SDL_SetRenderDrawColor
 #define render_t  SDL_Renderer
 
+#define PI 3.14159265F
+#define swap(t, x, y) { t z = x; x = y; y = z; }
+
 enum {LINE, FILL};
 
 void ellipse(render_t *renderer, int m, float a, float b, float h, float k);
