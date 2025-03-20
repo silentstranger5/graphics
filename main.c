@@ -166,20 +166,19 @@ void cube() {
 	int nf = sizeof(faces) / sizeof(ivec3);
 	for (int i = 0; i < nv; i++) {
 		vec3_roty(vertices[i], angle += 0.02f, vertices[i]);
-		vec3_scale(vertices[i], 1.4f);
 		vec3_add(vertices[i], (vec3){0, 0, 2}, vertices[i]);
 	}
 	color(renderer, 255, 255, 255, 255);
-	mesh(renderer, (float *) vertices, (int *) faces, nv, nf, 255);
+	mesh(renderer, (float *) vertices, (int *) faces, nv, nf, 0.5f, 255);
 }
 
 void pyramid() {
 	vec3 vertices[] = {
-		{-0.5f, 0.8f, -0.5f},
-		{-0.5f, 0.8f,  0.5f},
-		{ 0.5f, 0.8f,  0.5f},
-		{ 0.5f, 0.8f, -0.5f},
-		{ 0.0f, 0.2f,  0.0f},
+		{-0.5f, -0.5f, -0.5f},
+		{-0.5f, -0.5f,  0.5f},
+		{ 0.5f, -0.5f,  0.5f},
+		{ 0.5f, -0.5f, -0.5f},
+		{ 0.0f,  0.5f,  0.0f},
 	};
 	ivec3 faces[] = {
 		{0, 1, 2}, {0, 2, 3},
@@ -191,9 +190,8 @@ void pyramid() {
 	int nf = sizeof(faces) / sizeof(ivec3);
 	for (int i = 0; i < nv; i++) {
 		vec3_roty(vertices[i], angle += 0.02f, vertices[i]);
-		vec3_scale(vertices[i], 1.4f);
 		vec3_add(vertices[i], (vec3){0, 0, 2}, vertices[i]);
 	}
 	color(renderer, 255, 255, 255, 255);
-	mesh(renderer, (float *) vertices, (int *) faces, nv, nf, 255);
+	mesh(renderer, (float *) vertices, (int *) faces, nv, nf, 0.5f, 255);
 }

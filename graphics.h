@@ -21,6 +21,6 @@ enum {LINE, FILL};
 void ellipse(render_t *renderer, int m, float a, float b, float h, float k);
 void circle(render_t *renderer, int m, float x, float y, float r);
 void polygon(render_t *renderer, int m, float *v, int n);
-void mesh(render_t *r, float *v, int *f, int nv, int nf, int h);
+void mesh(render_t *r, float *v, int *f, int nv, int nf, float ch, float wh);
 
 #endif
